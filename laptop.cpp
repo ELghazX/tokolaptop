@@ -36,13 +36,12 @@ int login(Accounts *akun) {
     cout << "Password: ";
     cin >> password;
     Accounts *temp = akun;
+    if (username == "admin" && password == "admin")
+        return 1;
+
     while (temp != NULL) {
         if (temp->akun.username == username && temp->akun.password == password) {
-            if (username == "admin") {
-                return 1;
-            } else {
-                return 0;
-            }
+            return 0;
         }
         temp = temp->next;
     }
