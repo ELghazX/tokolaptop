@@ -183,40 +183,6 @@ void registerUser(Accounts *&akun) {
     system("cls");
 }
 
-void menuMain() {
-    string opsi[] = {"Login", "Register", "Exit"};
-    string opsi_header = "Selamat Datang di Jahron Cyber";
-    int jumlah_opsi = 3, test;
-    Accounts *akun = NULL;
-    
-    while (true)
-    {
-        int pilih = showmenu(jumlah_opsi, opsi, opsi_header);
-
-        switch (pilih) {
-            case 0:
-                system("cls");
-                test = login(akun);
-                if (test == 1) {
-                    cout << "Login berhasil! admin" << endl;
-                    // menuAdmin();
-                } else if (test == 0) {
-                    cout << "Login berhasil! user" << endl;
-                    // menuUser();
-                } else {
-                    cout << "Username atau password salah!" << endl;
-                }
-                break;
-            case 1:
-                registerUser(akun);
-                break;
-            case 2:
-                // exit();
-                return;
-        }
-    }
-}
-
 void listLaptop(Laptops *head){
    if(head == nullptr){
          cout<<"List Laptop kosong"<<endl;
@@ -230,6 +196,7 @@ void listLaptop(Laptops *head){
             }
         cout<<endl;
     }
+_getch();
 }
 
 Brand* linkedListToArray(Brands *head, int jumlahBrand) {
@@ -266,6 +233,7 @@ void addBrand(Brands *&head, string brand){
     }
     temp->next = brandBaru;
 }
+
 
 Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     Laptops *laptopBaru = new Laptops();
@@ -335,12 +303,83 @@ void addLaptop(Laptops *&head, int &jumlahlaptop, int &lastId, Brands *&headbran
     jumlahlaptop++;
 }
 
+void editLaptop(Laptops *head) {
+    if (head == nullptr) {
+        cout << "List Laptop kosong" << endl;
+        return;
+    }
+
+    listLaptop(head);
+    int id;
+    cout << "Masukkan ID Laptop yang ingin diubah: ";
+    cin >> id; cin.ignore();
+
+    Laptops *temp = head;
+    while (temp != nullptr && temp->data.id != id) {
+        temp = temp->next;
+    }
+
+    if (temp == nullptr) {
+        cout << "Laptop dengan ID tersebut tidak ditemukan." << endl;
+        _getch();
+        return;
+    }
+
+    cout << "Masukkan data baru untuk laptop dengan ID " << id << ":" << endl;
+    cout << "Brand: ";
+    getline(cin, temp->data.brand);
+    cout << "Model: ";
+    getline(cin, temp->data.model);
+    cout << "Stok: ";
+    cin >> temp->data.stock; cin.ignore();
+    cout << "Harga: ";
+    cin >> temp->data.price; cin.ignore();
+    cin.clear();
+
+    cout << "Data laptop berhasil diubah." << endl;
+}
+void deleteLaptop(Laptops *&head) {
+    if (head == nullptr) {
+        cout << "List Laptop kosong" << endl;
+        return;
+    }
+
+    int id;
+    cout << "Masukkan ID Laptop yang ingin dihapus: ";
+    cin >> id; cin.ignore();
+
+    Laptops *temp = head;
+    Laptops *prev = nullptr;
+
+    while (temp != nullptr && temp->data.id != id) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == nullptr) {
+        cout << "Laptop dengan ID tersebut tidak ditemukan." << endl;
+        _getch();
+        return;
+    }
+
+    if (prev == nullptr) {
+        head = temp->next;
+    } else {
+        prev->next = temp->next;
+    }
+
+    delete temp;
+    cout << "Laptop berhasil dihapus." << endl;
+}
+
 void menuAdmin(Laptops *head, int &jumlahLaptop, int &lastId, Brands *&headbrand, int &jumlahBrand) {
+    int pilih;
+    do{
     string opsi[] = {"List Laptop", "Tambah Laptop", "Ubah Laptop", "Hapus Laptop","Selesaikan Pesanan", "Logout"};
     string sort[] = {"Brand", "Price"}; 
     string opsi_header = "Menu Admin";
     int jumlah_opsi = 6;
-    int pilih = showmenu(jumlah_opsi, opsi, opsi_header);
+    pilih = showmenu(jumlah_opsi, opsi, opsi_header);
     switch (pilih) {
         case 0:
             opsi_header = "Sort By";
@@ -358,28 +397,40 @@ void menuAdmin(Laptops *head, int &jumlahLaptop, int &lastId, Brands *&headbrand
             addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
             break;
         case 2:
-            // ubahLaptop();
+            editLaptop(head);
             break;
         case 3:
-            // hapusLaptop();
+            cout << "Hapus Laptop" << endl;
+            listLaptop(head);
+        
+            deleteLaptop(head);
             break;
         case 4:
             // selesaikanPesanan();
             break;
-        case 5:
-            // logout();
-            break;
-    }
+    }}while (pilih != 5);
 }
 
-void menuUser() {
-    string opsi[] = {"Lihat Laptop", "Beli Laptop", "Cari Laptop", "Logout"};
+void menuUser(Laptops *head, int &jumlahLaptop, int &lastId, Brands *&headbrand, int &jumlahBrand) {
+   int pilih; 
+    do{
+    string opsi[] = {"Lihat Laptop", "Beli Laptop", "Cari Laptop", "Admin", "Logout"};
+    string sort[] = {"Brand", "Price"}; 
     string opsi_header = "Menu User";
-    int jumlah_opsi = 4;
-    int pilih = showmenu(jumlah_opsi, opsi, opsi_header);
+    int jumlah_opsi = 5;
+    pilih = showmenu(jumlah_opsi, opsi, opsi_header);
     switch (pilih) {
         case 0:
-            // lihatLaptop();
+            opsi_header = "Sort By";
+            jumlah_opsi = 2;
+            pilih = showmenu(jumlah_opsi, sort, opsi_header);
+            if(pilih == 0){
+                mergeSortName(head);
+            } else {
+                // mergeSortPrice(head);
+            }
+
+            listLaptop(head);
             break;
         case 1:
             // beliLaptop();
@@ -388,9 +439,10 @@ void menuUser() {
             // CariLaptop();
             break;
         case 3:
-            // logout();
+            menuAdmin(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
             break;
-    }
+            // logout();
+    }}while (pilih != 4);
 }
 
 int main() {
@@ -399,15 +451,16 @@ int main() {
     Laptops *head = nullptr;
     Accounts *headakun = nullptr;
     Brands *headbrand = nullptr;
-    // menuMain();
-    while (true) {
-    addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
-    shellSort(head, false);
-    listLaptop(head);
-    _getch();
-    }
-    addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
-    _getch();
+    menuUser(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
+    cout << "Program Berhenti" << endl;
+    // // menuMain();
+    // while (true) {
+    // addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
+    // shellSort(head, false);
+    // listLaptop(head);
+    // _getch();
+    // }
+    // addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
     // menuMain();
     return 0;
 }
