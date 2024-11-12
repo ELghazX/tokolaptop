@@ -13,6 +13,7 @@ struct Laptop {
     string brand;
     string model;
     int stock;
+    int price;
 };
 
 struct Accounts {
@@ -33,6 +34,55 @@ struct Brands {
     Brand data;
     Brands *next;
 };
+
+void mergeSortName(Laptops *&head) {
+    if (head == nullptr || head->next == nullptr) {
+        return;
+    }
+
+    Laptops *mid = head;
+    Laptops *temp = head->next;
+    while (temp != nullptr && temp->next != nullptr) {
+        mid = mid->next;
+        temp = temp->next->next;
+    }
+
+    Laptops *left = head;
+    Laptops *right = mid->next;
+    mid->next = nullptr;
+
+    mergeSortName(left);
+    mergeSortName(right);
+
+    Laptops *sorted = nullptr;
+    Laptops *tail = nullptr;
+    while (left != nullptr && right != nullptr) {
+        Laptops *temp = nullptr;
+        if (left->data.brand.compare(right->data.brand) < 0) {
+            temp = left;
+            left = left->next;
+        } else {
+            temp = right;
+            right = right->next;
+        }
+
+        if (sorted == nullptr) {
+            sorted = temp;
+            tail = temp;
+        } else {
+            tail->next = temp;
+            tail = temp;
+        }
+    }
+
+    if (left != nullptr) {
+        tail->next = left;
+    } else if (right != nullptr) {
+        tail->next = right;
+    }
+
+    head = sorted;
+}
 
 int login(Accounts *akun) {
     string username, password;
@@ -226,11 +276,21 @@ void addLaptop(Laptops *&head, int &jumlahlaptop, int &lastId, Brands *&headbran
 
 void menuAdmin(Laptops *head, int &jumlahLaptop, int &lastId, Brands *&headbrand, int &jumlahBrand) {
     string opsi[] = {"List Laptop", "Tambah Laptop", "Ubah Laptop", "Hapus Laptop","Selesaikan Pesanan", "Logout"};
+    string sort[] = {"Brand", "Price"}; 
     string opsi_header = "Menu Admin";
     int jumlah_opsi = 6;
     int pilih = showmenu(jumlah_opsi, opsi, opsi_header);
     switch (pilih) {
         case 0:
+            opsi_header = "Sort By";
+            jumlah_opsi = 2;
+            pilih = showmenu(jumlah_opsi, sort, opsi_header);
+            if(pilih == 0){
+                mergeSortName(head);
+            } else {
+                // mergeSortPrice(head);
+            }
+
             listLaptop(head);
             break;
         case 1:
