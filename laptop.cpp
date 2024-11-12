@@ -145,9 +145,9 @@ void mergeSortName(Laptops *&head) {
 int login(Accounts *akun) {
     string username, password;
     cout << "Username: ";
-    cin >> username;
+    getline(cin,username);
     cout << "Password: ";
-    cin >> password;
+    getline(cin,password);
     Accounts *temp = akun;
     if (username == "admin" && password == "admin")
         return 1;
@@ -164,9 +164,9 @@ int login(Accounts *akun) {
 void registerUser(Accounts *&akun) {
     Account new_akun;
     cout << "Username: ";
-    cin >> new_akun.username;
+    getline(cin, new_akun.username);
     cout << "Password: ";
-    cin >> new_akun.password;
+    getline(cin, new_akun.password);
     Accounts *temp = akun;
     while (temp != NULL) {
         if (temp->akun.username == new_akun.username) {
@@ -282,9 +282,6 @@ Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     if (pilih == 0) {
         string newBrand;
         cout << "Masukkan Brand Baru: ";
-        if(jumlahBrand != 0){
-            cin.ignore();
-        }
         getline(cin, newBrand);
         addBrand(headbrand, newBrand);
         jumlahBrand++;
@@ -298,10 +295,9 @@ Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     cout << "Model: ";
     getline(cin, laptopBaru->data.model);
     cout << "Stok: ";
-    cin >> laptopBaru->data.stock;
+    cin >> laptopBaru->data.stock;cin.ignore();
     cout << "Harga: ";
-    cin >> laptopBaru->data.price;
-    cin.ignore();
+    cin >> laptopBaru->data.price;cin.ignore();
     cin.clear();
     return laptopBaru;
 }
