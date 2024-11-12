@@ -164,9 +164,9 @@ void listLaptop(Laptops *head){
          cout<<"List Laptop kosong"<<endl;
    }else{ 
         int no = 1;
-        cout << "No\tID\tBrand\tModel\tStok" << endl;
+        cout << "No\tID\tBrand\tModel\tStok\tHarga" << endl;
             while(head != nullptr){
-                cout << no << "\t" << head->data.id << "\t" << head->data.brand << "\t" << head->data.model << "\t"<< head->data.stock <<endl;
+                cout << no << "\t" << head->data.id << "\t" << head->data.brand << "\t" << head->data.model << "\t"<< head->data.stock << "\t" << head->data.price << endl;
                 no++;
                 head = head->next;
             }
@@ -208,6 +208,7 @@ void addBrand(Brands *&head, string brand){
     }
     temp->next = brandBaru;
 }
+
 Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     Laptops *laptopBaru = new Laptops();
     laptopBaru->data.id = ++lastId;
@@ -217,6 +218,7 @@ Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     for (int i = 0; i < jumlahBrand; i++) {
         brandOptions[i + 1] = opsi[i].brand;
     }
+
     brandOptions[jumlahBrand + 1] = "Batal";
     int pilih = showmenu(jumlahBrand + 2, brandOptions, "Pilih Brand");
     if (pilih == 0) {
@@ -239,6 +241,10 @@ Laptops* inputData(int &lastId, Brands *&headbrand, int &jumlahBrand) {
     getline(cin, laptopBaru->data.model);
     cout << "Stok: ";
     cin >> laptopBaru->data.stock;
+    cout << "Harga: ";
+    cin >> laptopBaru->data.price;
+    cin.ignore();
+    cin.clear();
     return laptopBaru;
 }
 
@@ -264,6 +270,7 @@ void addLaptop(Laptops *&head, int &jumlahlaptop, int &lastId, Brands *&headbran
         lastId--;
         return;
     }
+    
     laptopBaru->next = nullptr;
 
     Laptops *temp = head;
@@ -341,6 +348,7 @@ int main() {
     // menuMain();
     while (true) {
     addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
+    mergeSortName(head);
     listLaptop(head);
     _getch();
     }
