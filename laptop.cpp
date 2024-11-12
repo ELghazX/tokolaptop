@@ -35,6 +35,64 @@ struct Brands {
     Brands *next;
 };
 
+
+int getLength(Laptops *head) {
+    int length = 0;
+    Laptops *temp = head;
+    while (temp != nullptr) {
+        length++;
+        temp = temp->next;
+    }
+    return length;
+}
+
+Laptops** listToArray(Laptops *head, int length) {
+    Laptops **arr = new Laptops*[length];
+    Laptops *temp = head;
+    for (int i = 0; i < length; i++) {
+        arr[i] = temp;
+        temp = temp->next;
+    }
+    return arr;
+}
+
+void arrayToList(Laptops **arr, Laptops *&head, int length) {
+    head = arr[0];
+    Laptops *temp = head;
+    for (int i = 1; i < length; i++) {
+        temp->next = arr[i];
+        temp = temp->next;
+    }
+    temp->next = nullptr;
+    delete[] arr;
+}
+
+void shellSort(Laptops *&head, bool ascending = true) {
+    int n = getLength(head);
+    if (n <= 1) return;
+
+    Laptops **arr = listToArray(head, n);
+
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            Laptops *temp = arr[i];
+            int j;
+            if (ascending) {
+                for (j = i; j >= gap && arr[j - gap]->data.price > temp->data.price; j -= gap) {
+                    arr[j] = arr[j - gap];
+                }
+            } else {
+                for (j = i; j >= gap && arr[j - gap]->data.price < temp->data.price; j -= gap) {
+                    arr[j] = arr[j - gap];
+                }
+            }
+            arr[j] = temp;
+        }
+    }
+
+    arrayToList(arr, head, n);
+}
+
 void mergeSortName(Laptops *&head) {
     if (head == nullptr || head->next == nullptr) {
         return;
@@ -348,7 +406,7 @@ int main() {
     // menuMain();
     while (true) {
     addLaptop(head, jumlahLaptop, lastId, headbrand, jumlahBrand);
-    mergeSortName(head);
+    shellSort(head, false);
     listLaptop(head);
     _getch();
     }
