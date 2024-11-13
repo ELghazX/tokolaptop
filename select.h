@@ -18,7 +18,6 @@ void gotoxy(int x, int y){
 }
 
 int showmenu(int jumlah_opsi, string opsi[], string opsi_header){
-    system("cls");
     int pilih = 0;
     const int putih = 15;
     const int highlightkuning = 14;
