@@ -1,6 +1,8 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
+#include <iomanip>
+
 #include "select.h"
 using namespace std;
 
@@ -48,7 +50,7 @@ void displayLaptops() {
     while (current != nullptr) {
         cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
              << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
-             << ", Stok: " << current->stok << ", Harga: " << current->harga << endl;
+             << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)<< current->harga << endl;
         current = current->next;
     }
 }
@@ -87,7 +89,7 @@ void displayPesanan() {
         cout << "ID Pesanan: " << current->pesanan_id << ", Nama: " << current->pelanggan_nama
              << ", Alamat: " << current->pelanggan_alamat << ", Telepon: " << current->pelanggan_telepon
              << ", Laptop ID: " << current->laptop_id << ", Jumlah: " << current->jumlah
-             << ", Total Harga: " << current->total_harga << endl;
+             << ", Total Harga: Rp"<< std::fixed << std::setprecision(2) << current->total_harga << endl;
         current = current->next;
     }
 }
