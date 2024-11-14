@@ -157,6 +157,8 @@ void inputPesanan(){
 
     if (laptop == nullptr) {
         cout << "Laptop dengan ID " << laptop_id << " tidak ditemukan.\n";
+        _getch();
+        system("cls");
         return;
     }
 
@@ -181,6 +183,9 @@ int pilihanCariLaptop;
         switch (pilihan) {
             case 0:
                 displayLaptops();
+                cout << "\n\tKlik untuk next\n";
+                _getch();
+                system("cls");
                 pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
                 if (pilihanCariLaptop == 0){
                     // SEARCHING DISINI nanti 
@@ -189,6 +194,7 @@ int pilihanCariLaptop;
             case 1:
                 displayLaptops();
                 inputPesanan();
+                cout << "\n\tKlik untuk next\n";
                 _getch();
                 system("cls");
                 break;
@@ -271,22 +277,42 @@ void menuAdmin() {
     do {
         string menuAdminHeader = "Menu Admin";
         string menuAdmin[] = {"Lihat Laptop", "Tambah Laptop","Ubah Laptop", "Hapus Laptop", "Lihat Pesanan", "Keluar"};
+        int pilihanTambahLaptop, pilihanUbahLaptop, pilihanHapusLaptop;
+        string ubahLaptopHeader = "Ubah Laptop?";
+        string tambahLaptopHeader = "Tambah Laptop?";
+        string hapusLaptopHeader = "Hapus Laptop?";
+        string tambahLaptop[] = {"Ya", "Kembali"};
+        string ubahLaptop[] = {"Ya", "Kembali"};
+        string hapusLaptop[] = {"Ya", "Kembali"};
         pilihan = showmenu(6, menuAdmin, menuAdminHeader);
                 string donePesananHeader = "Selesaikan Pesanan?";
-                string donePesanan[] = {"FIFO", "LIFO"};
+                string donePesanan[] = {"FIFO", "LIFO","Kembali"};
                 int pilihanDonePesanan;
         switch (pilihan) {
             case 0:
                 displayLaptops();
+                cout << "\n\tKlik untuk next\n";
+                _getch();
+                system("cls");
                 break;
             case 1:
+                pilihanTambahLaptop = showmenu(2, tambahLaptop, tambahLaptopHeader);
                 cout << "Menambahkan Laptop baru:\n";
+                if (pilihanTambahLaptop == 1){
+                    system("cls");
+                    break;
+                }
                 inputLaptop(merk, model, spesifikasi, stok, harga);
                 addLaptop(merk, model, spesifikasi, stok, harga);
                 system("cls");
-                cout << "Laptop berhasil ditambahkan.\n";
+                cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
+                pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
+                if (pilihanUbahLaptop == 1){
+                    system("cls");
+                    break;
+                }
                 displayLaptops();
                 int id;
                 // bawah ini ganti searching
@@ -298,6 +324,11 @@ void menuAdmin() {
                 system("cls");
                 break;
             case 3:
+                pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
+                if (pilihanHapusLaptop == 1){
+                    system("cls");
+                    break;
+                }
                 displayLaptops();
                 // bawah ini ganti searching
                 cout << "Masukkan ID Laptop yang ingin dihapus: ";
@@ -307,10 +338,10 @@ void menuAdmin() {
                 break;
             case 4:
                 displayPesanan();
-                pilihanDonePesanan = showmenu(2, donePesanan, donePesananHeader);
+                pilihanDonePesanan = showmenu(3, donePesanan, donePesananHeader);
                 if (pilihanDonePesanan == 0){
                     completePesananFIFO();
-                } else {
+                } else if(pilihanDonePesanan == 1){
                     completePesananLIFO();
                 }
                 break;
@@ -342,7 +373,10 @@ int main() {
                     cout << "Login berhasil.\n";
                     menuAdmin();
                 } else {
+                    system("cls");
                     cout << "Username atau password salah.\n";
+                    cout << "Klik untuk next\n";
+                    _getch();
                 }
                 break;
             case 2:
