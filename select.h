@@ -18,15 +18,14 @@ void gotoxy(int x, int y){
 }
 
 int showmenu(int jumlah_opsi, string opsi[], string opsi_header){
-    system("cls");
     int pilih = 0;
     const int putih = 15;
     const int highlightkuning = 14;
     bool chosen = false;
+        gotoxy(10, 5);
+    cout << opsi_header;
 
     while (!chosen){
-        gotoxy(10, 5);
-        cout << opsi_header;
 
         for (int i = 0; i < jumlah_opsi; i++){
             gotoxy(10, 7 + i);
