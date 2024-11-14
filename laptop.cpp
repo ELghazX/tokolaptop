@@ -269,6 +269,69 @@ void updateLaptop(int id) {
     current->harga = harga;
     cout << "Laptop berhasil diperbarui.\n";
 }
+
+// Helper function to create the Bad Character Heuristic table for Boyer-Moore
+void buildBadCharTable(const string& pattern, int badChar[]) {
+    int size = pattern.size();
+
+    // Initialize all occurrences as -1
+    for (int i = 0; i < 256; i++) {
+        badChar[i] = -1;
+    }
+
+    // Fill the actual value of last occurrence of a character
+    for (int i = 0; i < size; i++) {
+        badChar[(int)pattern[i]] = i;
+    }
+}
+
+// Boyer-Moore search function
+bool boyerMooreSearch(const string& text, const string& pattern) {
+    int badChar[256];
+    buildBadCharTable(pattern, badChar);
+
+    int m = pattern.size();
+    int n = text.size();
+    int shift = 0;
+
+    while (shift <= (n - m)) {
+        int j = m - 1;
+
+        while (j >= 0 && pattern[j] == text[shift + j]) {
+            j--;
+        }
+
+        if (j < 0) {
+            return true;
+            shift += (shift + m < n) ? m - badChar[text[shift + m]] : 1;
+        } else {
+            shift += max(1, j - badChar[text[shift + j]]);
+        }
+    }
+    return false;
+}
+
+// Function to search for laptops by model name using Boyer-Moore and display all matches
+void searchLaptopsByModel(const string& modelSearch) {
+    Laptop* current = laptopHead;
+    bool found = false;
+
+    while (current != nullptr) {
+        if (boyerMooreSearch(current->model, modelSearch)) {
+            cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
+                 << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
+                 << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)
+                 << current->harga << endl;
+            found = true;
+        }
+        current = current->next;
+    }
+
+    if (!found) {
+        cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
+    }
+}
+
 void menuAdmin() {
     int pilihan, stok;
     double harga;
@@ -278,6 +341,7 @@ void menuAdmin() {
         string menuAdminHeader = "Menu Admin";
         string menuAdmin[] = {"Lihat Laptop", "Tambah Laptop","Ubah Laptop", "Hapus Laptop", "Lihat Pesanan", "Keluar"};
         int pilihanTambahLaptop, pilihanUbahLaptop, pilihanHapusLaptop;
+        string model;
         string ubahLaptopHeader = "Ubah Laptop?";
         string tambahLaptopHeader = "Tambah Laptop?";
         string hapusLaptopHeader = "Hapus Laptop?";
@@ -315,7 +379,10 @@ void menuAdmin() {
                 }
                 displayLaptops();
                 int id;
-                // bawah ini ganti searching
+                cout << "Cari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                searchLaptopsByModel(model);
                 cout << "Masukkan ID Laptop yang ingin diubah: ";
                 cin >> id;cin.ignore();
                 updateLaptop(id);
