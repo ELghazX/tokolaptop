@@ -39,7 +39,7 @@ Pesanan* pesananHead = nullptr;
 static int lastLaptopId = 0;
 
 void addLaptop(string merk, string model, string spesifikasi, int stok, double harga) {
-    int id = ++lastLaptopId; 
+    int id = ++lastLaptopId;
     Laptop* newLaptop = new Laptop(id, merk, model, spesifikasi, stok, harga);
     newLaptop->next = laptopHead;
     laptopHead = newLaptop;
@@ -188,7 +188,7 @@ int pilihanCariLaptop;
                 system("cls");
                 pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
                 if (pilihanCariLaptop == 0){
-                    // SEARCHING DISINI nanti 
+                    // SEARCHING DISINI nanti
                 }
                 break;
             case 1:
@@ -332,6 +332,102 @@ void searchLaptopsByModel(const string& modelSearch) {
     }
 }
 
+// Function to split the linked list into two halves
+void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
+    Laptop* fast;
+    Laptop* slow;
+    slow = source;
+    fast = source->next;
+
+    while (fast != nullptr) {
+        fast = fast->next;
+        if (fast != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = nullptr;
+}
+
+// Merging two sorted lists by brand (merk)
+Laptop* sortedMergeByBrand(Laptop* a, Laptop* b) {
+    if (a == nullptr) return b;
+    if (b == nullptr) return a;
+
+    Laptop* result = nullptr;
+    if (a->merk <= b->merk) {
+        result = a;
+        result->next = sortedMergeByBrand(a->next, b);
+    } else {
+        result = b;
+        result->next = sortedMergeByBrand(a, b->next);
+    }
+    return result;
+}
+
+// Recursive merge sort function to sort by brand
+void mergeSortByBrand(Laptop** headRef) {
+    Laptop* head = *headRef;
+    if (head == nullptr || head->next == nullptr) return;
+
+    Laptop* a;
+    Laptop* b;
+    splitList(head, &a, &b);
+
+    mergeSortByBrand(&a);
+    mergeSortByBrand(&b);
+
+    *headRef = sortedMergeByBrand(a, b);
+}
+
+void shellSortByPrice(Laptop** headRef) {
+    int n = 0;
+    Laptop* temp = *headRef;
+    while (temp != nullptr) {  // Counting the number of nodes
+        n++;
+        temp = temp->next;
+    }
+
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            Laptop* jNode = *headRef;
+            for (int k = 0; k < i; k++) jNode = jNode->next;  // Moving to the i-th node
+
+            double currentHarga = jNode->harga;
+            string currentMerk = jNode->merk, currentModel = jNode->model, currentSpesifikasi = jNode->spesifikasi;
+            int currentStok = jNode->stok, currentLaptopId = jNode->laptop_id;
+
+            int j;
+            Laptop* gapNode;
+            for (j = i; j >= gap; j -= gap) {
+                gapNode = *headRef;
+                for (int k = 0; k < j - gap; k++) gapNode = gapNode->next;  // Moving to the (j - gap)-th node
+
+                if (gapNode->harga <= currentHarga) break;
+
+                jNode->harga = gapNode->harga;
+                jNode->merk = gapNode->merk;
+                jNode->model = gapNode->model;
+                jNode->spesifikasi = gapNode->spesifikasi;
+                jNode->stok = gapNode->stok;
+                jNode->laptop_id = gapNode->laptop_id;
+
+                jNode = gapNode;
+            }
+
+            jNode->harga = currentHarga;
+            jNode->merk = currentMerk;
+            jNode->model = currentModel;
+            jNode->spesifikasi = currentSpesifikasi;
+            jNode->stok = currentStok;
+            jNode->laptop_id = currentLaptopId;
+        }
+    }
+}
+
 void menuAdmin() {
     int pilihan, stok;
     double harga;
@@ -348,12 +444,21 @@ void menuAdmin() {
         string tambahLaptop[] = {"Ya", "Kembali"};
         string ubahLaptop[] = {"Ya", "Kembali"};
         string hapusLaptop[] = {"Ya", "Kembali"};
+        string metodeSort[] = {"Merge Sort", "Shell Sort", "Kembali"};
         pilihan = showmenu(6, menuAdmin, menuAdminHeader);
                 string donePesananHeader = "Selesaikan Pesanan?";
                 string donePesanan[] = {"FIFO", "LIFO","Kembali"};
                 int pilihanDonePesanan;
         switch (pilihan) {
             case 0:
+                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan");
+                if (pilihan == 0) {
+                    mergeSortByBrand(&laptopHead);
+                } else if (pilihan == 1) {
+                    shellSortByPrice(&laptopHead);
+                } else {
+                    break;
+                }
                 displayLaptops();
                 cout << "\n\tKlik untuk next\n";
                 _getch();
@@ -397,11 +502,14 @@ void menuAdmin() {
                     break;
                 }
                 displayLaptops();
-                // bawah ini ganti searching
+                cout << "Cari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                searchLaptopsByModel(model);
                 cout << "Masukkan ID Laptop yang ingin dihapus: ";
                 cin >> id;cin.ignore();
                 deleteLaptop(id);
-                system("cls");  
+                system("cls");
                 break;
             case 4:
                 displayPesanan();
