@@ -5,6 +5,9 @@
 
 #include "select.h"
 using namespace std;
+void cls(){
+    system("cls");
+}
 
 // ===============================================STRUCT================================================ //
 struct Laptop {
@@ -235,11 +238,11 @@ void inputPesanan(){
     if (laptop == nullptr) {
         cout << "Laptop dengan ID " << laptop_id << " tidak ditemukan.\n";
         _getch();
-        system("cls");
+        cls();
         return;
     }
 
-    cout << "\nMembeli " << laptop->merk << " " << laptop->model << endl;
+    cout << "\nMembeli " << laptop->merk << " " << laptop->model <<endl <<endl;
     cout << "Masukkan jumlah: ";
     cin >> jumlah;cin.ignore();
     while (cin.fail()) {
@@ -395,7 +398,7 @@ void searchLaptopsByModel(const std::string& modelSearch) {
         current = current->next;
     }
     if (!found) {
-        system("cls");
+        cls();
         cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
         string searchOptions[] = {"Lanjutkan tanpa search", "Search ulang"};
         int searchChoice = showmenu(2, searchOptions, "Pilih opsi:");
@@ -535,24 +538,24 @@ void menuAdmin() {
                 displayLaptops();
                 cout << "\n\nKlik untuk next\n";
                 _getch();
-                system("cls");
+                cls();
                 break;
             case 1:
                 pilihanTambahLaptop = showmenu(2, tambahLaptop, tambahLaptopHeader);
                 cout << "Menambahkan Laptop baru:\n";
                 if (pilihanTambahLaptop == 1){
-                    system("cls");
+                    cls();
                     break;
                 }
                 inputLaptop(merk, model, spesifikasi, stok, harga);
                 addLaptop(merk, model, spesifikasi, stok, harga);
-                system("cls");
+                cls();
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
-                    system("cls");
+                    cls();
                     break;
                 }
                 displayLaptops();
@@ -563,6 +566,11 @@ void menuAdmin() {
                 cout << "\nCari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
+                if(model.empty()){
+                    cls();
+                    cout << "Input tidak boleh kosong\n";
+                    break;
+                }
                 searchLaptopsByModel(model);
                 
                 cout << "\nMasukkan ID Laptop yang ingin diubah: ";
@@ -570,12 +578,12 @@ void menuAdmin() {
                 updateLaptop(id);
                 cout << "Perubahan berhasil disimpan.\n"; ;
                 _getch();
-                system("cls");
+                cls();
                 break;
             case 3:
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
-                    system("cls");
+                    cls();
                     break;
                 }
                 displayLaptops();
@@ -586,11 +594,16 @@ void menuAdmin() {
                 cout << "\nCari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
+                if (model.empty()) {
+                    cls();
+                    cout << "Input tidak boleh kosong\n";
+                    break;
+                }
                 searchLaptopsByModel(model);
                 cout << "Masukkan ID Laptop yang ingin dihapus: ";
                 cin >> id;cin.ignore();
                 deleteLaptop(id);
-                system("cls");
+                cls();
                 break;
             case 4:
                 displayPesanan();
@@ -611,7 +624,7 @@ void menuAdmin() {
                 }
                 cout << "\n\nKlik untuk next\n";
                 _getch();
-                system("cls");
+                cls();
                 break;
             case 6:
                 cout << "Telah Logout\n";
@@ -645,7 +658,7 @@ void menuPelanggan() {
                 displayLaptops();
                 cout << "\n\nKlik untuk next\n";
                 _getch();
-                system("cls");
+                cls();
                 if (laptopHead == nullptr) {
                     break;
                 }
@@ -659,14 +672,15 @@ void menuPelanggan() {
                 cin.clear();
                 getline(cin, model);
                 if (model.empty()) {
-                    system("cls");
+                    cls();
+                    cout << "Input tidak boleh kosong\n";
                     break;
                 }
                 searchLaptopsByModel(model);
                 inputPesanan();
                 cout << "\n\nKlik untuk next\n";
                 _getch();
-                system("cls");
+                cls();
                 break;
             case 2:
                 cout << "Terima kasih telah mengunjungi toko kami!\n";
@@ -687,7 +701,7 @@ int main() {
     addLaptop("MSI", "GF63 Thin", "Intel i5, 8GB RAM, 512GB SSD", 6, 9000000);
     addLaptop("Razer", "Blade 15", "Intel i7, 16GB RAM, 1TB SSD", 4, 20000000);
     do {
-    system("cls");
+        cls();
         string menuMainHeader = "Selamat datang di Toko Laptop!";
         string menuMain[] = {"Menu Pelanggan", "Login Admin", "Keluar"};
         pilihan = showmenu(3, menuMain, menuMainHeader);
@@ -697,11 +711,11 @@ int main() {
                 break;
             case 1:
                 if (loginAdmin()) {
-                    system("cls");
+                    cls();
                     cout << "Login berhasil.\n";
                     menuAdmin();
                 } else {
-                    system("cls");
+                    cls();
                     cout << "Username atau password salah.\n";
                     cout << "\n\nKlik untuk next\n";
                     _getch();
