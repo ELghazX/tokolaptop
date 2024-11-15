@@ -222,6 +222,12 @@ void inputPesanan(){
     getline(cin,telepon);
     cout << "Masukkan ID Laptop yang ingin dibeli: ";
     cin >> laptop_id;cin.ignore();
+    while (cin.fail()) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nInput tidak valid\nMasukkan ID Laptop yang ingin dibeli: ";
+        cin >> laptop_id;cin.ignore();
+    }
     Laptop* laptop = laptopHead;
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
@@ -233,9 +239,15 @@ void inputPesanan(){
         return;
     }
 
-    cout << "Membeli " << laptop->merk << " " << laptop->model << endl;
+    cout << "\nMembeli " << laptop->merk << " " << laptop->model << endl;
     cout << "Masukkan jumlah: ";
     cin >> jumlah;cin.ignore();
+    while (cin.fail()) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nInput tidak valid\nMasukkan jumlah: ";
+        cin >> jumlah;cin.ignore();
+    }
     addPesanan(rand() % 1000 + 1, nama, alamat, telepon, laptop_id, jumlah);
 }
 
@@ -248,8 +260,20 @@ void inputLaptop(string &merk, string &model, string &spesifikasi, int &stok, do
             getline(cin, spesifikasi);
             cout << "Stok: ";
             cin >> stok;cin.ignore();
+            while (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "\nInput tidak valid\nStok: ";
+                cin >> stok;cin.ignore();
+            }
             cout << "Harga: ";
             cin >> harga;cin.ignore();
+            while (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "\nInput tidak valid\nHarga: ";
+                cin >> harga;cin.ignore();
+            }
 }
 void deleteLaptop(int id) {
     if (laptopHead == nullptr) {
@@ -641,8 +665,12 @@ int main() {
 
     addLaptop("Dell", "Inspiron 14", "Intel i5, 8GB RAM, 256GB SSD", 10, 7000000);
     addLaptop("HP", "Pavilion 15", "Intel i7, 16GB RAM, 512GB SSD", 5, 12000000);
-
-
+    addLaptop("Asus", "VivoBook 14", "AMD Ryzen 5, 8GB RAM, 512GB SSD", 7, 8000000);
+    addLaptop("Lenovo", "IdeaPad 5", "AMD Ryzen 7, 16GB RAM, 1TB SSD", 3, 15000000);
+    addLaptop("Acer", "Aspire 5", "Intel i3, 4GB RAM, 128GB SSD", 8, 5000000);
+    addLaptop("Apple", "MacBook Air", "Apple M1, 8GB RAM, 256GB SSD", 2, 15000000);
+    addLaptop("MSI", "GF63 Thin", "Intel i5, 8GB RAM, 512GB SSD", 6, 9000000);
+    addLaptop("Razer", "Blade 15", "Intel i7, 16GB RAM, 1TB SSD", 4, 20000000);
     do {
     system("cls");
         string menuMainHeader = "Selamat datang di Toko Laptop!";
