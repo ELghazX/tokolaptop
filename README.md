@@ -26,4 +26,4 @@
     🙏 
 
   </p>
-  ![screenshot](https://imgur.com/a/4WHhXsp)
+  ![screenshot](https://imgur.com/a/jKI4vtu)
