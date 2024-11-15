@@ -183,6 +183,7 @@ void completePesananLIFO() {
 
     if (pesananHead->next == nullptr) {
         cout << "Pesanan dengan ID " << pesananHead->pesanan_id << " telah diselesaikan.\n";
+        addHistory(pesananHead->pesanan_id, pesananHead->pelanggan_nama, pesananHead->pelanggan_alamat, pesananHead->pelanggan_telepon, pesananHead->laptop_id, pesananHead->jumlah, pesananHead->total_harga);
         delete pesananHead;
         pesananHead = nullptr;
         return;
@@ -220,12 +221,29 @@ bool loginAdmin() {
 void inputPesanan(){
     string nama, alamat, telepon;
     int laptop_id, jumlah;
-    cout << "\nNama Pelanggan: ";
-    getline(cin,nama);
-    cout << "Alamat: ";
-    getline(cin,alamat);
-    cout << "Telepon: ";
-    getline(cin,telepon);
+    do {
+        cout << "\nNama Pelanggan: ";
+        getline(cin, nama);
+        if (nama.empty()) {
+            cout << "\nNama tidak boleh kosong.\n";
+        }
+    } while (nama.empty());
+
+    do {
+        cout << "Alamat: ";
+        getline(cin, alamat);
+        if (alamat.empty()) {
+            cout << "\nAlamat tidak boleh kosong.\n";
+        }
+    } while (alamat.empty());
+
+    do {
+        cout << "Telepon: ";
+        getline(cin, telepon);
+        if (telepon.empty()) {
+            cout << "\nNomor telepon tidak boleh kosong.\n";
+        }
+    } while (telepon.empty());
     cout << "Masukkan ID Laptop yang ingin dibeli: ";
     cin >> laptop_id;cin.ignore();
     while (cin.fail()) {
@@ -405,27 +423,43 @@ void deleteLaptop(int id) {
 Laptop* jumpSearchLaptopById(Laptop* head, int id) {
     if (head == nullptr) return nullptr;
 
-    int step = sqrt(lastLaptopId);
-    Laptop* prev = nullptr;
+    int n = 0;
+    Laptop* temp = head;
+    while (temp != nullptr) {
+        n++;
+        temp = temp->next;
+    }
+
+    int step = sqrt(n);
+    Laptop* prev = head;
     Laptop* current = head;
 
-    while (current != nullptr && current->laptop_id < id) {
+    while (current->next != nullptr && current->laptop_id < id) {
         prev = current;
-        for (int i = 0; i < step && current->next != nullptr; i++) {
-            current = current->next;
+        for (int i = 0; i < step; i++) {
+            if (current->next != nullptr) {
+                current = current->next;
+            } else {
+                break;
+            }
+        }
+
+        if (current->laptop_id >= id) {
+            break;
         }
     }
 
-    while (current != nullptr && current->laptop_id < id) {
-        current = current->next;
+    while (prev != nullptr && prev->laptop_id < id) {
+        prev = prev->next;
     }
 
-    if (current != nullptr && current->laptop_id == id) {
-        return current;
+    if (prev != nullptr && prev->laptop_id == id) {
+        return prev;
     }
 
     return nullptr;
 }
+
 
 void updateLaptop(int id) {
     if (id > lastLaptopId) {
