@@ -6,6 +6,7 @@
 #include "select.h"
 using namespace std;
 
+// ===============================================STRUCT================================================ //
 struct Laptop {
     int laptop_id;
     string merk;
@@ -33,40 +34,70 @@ struct Pesanan {
         : pesanan_id(id), pelanggan_nama(nama), pelanggan_alamat(alamat), pelanggan_telepon(telepon),
           laptop_id(l_id), jumlah(qty), total_harga(total), next(nullptr) {}
 };
+struct History{
+    int pesanan_id;
+    string pelanggan_nama;
+    string pelanggan_alamat;
+    string pelanggan_telepon;
+    int laptop_id;
+    int jumlah;
+    double total_harga;
+    History* next;
 
+    History(int id, string nama, string alamat, string telepon, int l_id, int qty, double total)
+        : pesanan_id(id), pelanggan_nama(nama), pelanggan_alamat(alamat), pelanggan_telepon(telepon),
+          laptop_id(l_id), jumlah(qty), total_harga(total), next(nullptr) {}
+};
+// ============================================INISIALISASI HEAD================================================ //
 Laptop* laptopHead = nullptr;
 Pesanan* pesananHead = nullptr;
-static int lastLaptopId = 0;
-
-void addLaptop(string merk, string model, string spesifikasi, int stok, double harga) {
-    int id = ++lastLaptopId;
-    Laptop* newLaptop = new Laptop(id, merk, model, spesifikasi, stok, harga);
-    newLaptop->next = laptopHead;
-    laptopHead = newLaptop;
-}
-
+History* historyHead = nullptr;
+int lastLaptopId = 0;
+// ============================================FUNGSI FUNGSI================================================ //
 void displayLaptops() {
     Laptop* current = laptopHead;
+    if (current == nullptr) {
+        cout << "Tidak ada laptop yang tersedia.\n";
+        return;
+    }
     while (current != nullptr) {
-        cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
+        cout << "ID: " << current->laptop_id << ", Brand: " << current->merk
              << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
              << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)<< current->harga << endl;
         current = current->next;
     }
-}
 
+}
+void addLaptop(string merk, string model, string spesifikasi, int stok, double harga) {
+    int id = ++lastLaptopId; 
+    Laptop* newLaptop = new Laptop(id, merk, model, spesifikasi, stok, harga);
+
+    if (laptopHead == nullptr) {
+        laptopHead = newLaptop;
+    } else {
+        Laptop* current = laptopHead;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        current->next = newLaptop;
+    }
+}
 void addPesanan(int pesanan_id, string nama, string alamat, string telepon, int laptop_id, int jumlah) {
     Laptop* laptop = laptopHead;
+    if (laptop == nullptr) {
+        cout << "Tidak ada laptop yang tersedia.\n";
+        return;
+    }
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
-    }
+    } 
 
     if (laptop == nullptr || laptop->stok < jumlah) {
         cout << "Laptop tidak tersedia atau stok kurang.\n";
         return;
     }
-
     double total_harga = laptop->harga * jumlah;
+    
     Pesanan* newPesanan = new Pesanan(pesanan_id, nama, alamat, telepon, laptop_id, jumlah, total_harga);
 
     if (pesananHead == nullptr) {
@@ -82,9 +113,25 @@ void addPesanan(int pesanan_id, string nama, string alamat, string telepon, int 
     laptop->stok -= jumlah;
     cout << "Pesanan berhasil dibuat.\n";
 }
+void addHistory(int pesanan_id, string nama, string alamat, string telepon, int laptop_id, int jumlah, double total_harga) {
+    History* newHistory = new History(pesanan_id, nama, alamat, telepon, laptop_id, jumlah, total_harga);
 
-void displayPesanan() {
-    Pesanan* current = pesananHead;
+    if (historyHead == nullptr) {
+        historyHead = newHistory;
+    } else {
+        History* current = historyHead;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        current->next = newHistory;
+    }
+}
+void displayHistory() {
+    History* current = historyHead;
+    if (current == nullptr) {
+        cout << "Tidak ada riwayat pesanan.\n";
+        return;
+    }
     while (current != nullptr) {
         cout << "ID Pesanan: " << current->pesanan_id << ", Nama: " << current->pelanggan_nama
              << ", Alamat: " << current->pelanggan_alamat << ", Telepon: " << current->pelanggan_telepon
@@ -93,6 +140,22 @@ void displayPesanan() {
         current = current->next;
     }
 }
+
+void displayPesanan() {
+    Pesanan* current = pesananHead;
+    if (current == nullptr) {
+        cout << "Tidak ada pesanan yang sedang diproses.\n";
+        return;
+    }
+    while (current != nullptr) {
+        cout << "ID Pesanan: " << current->pesanan_id << ", Nama: " << current->pelanggan_nama
+             << ", Alamat: " << current->pelanggan_alamat << ", Telepon: " << current->pelanggan_telepon
+             << ", Laptop ID: " << current->laptop_id << ", Jumlah: " << current->jumlah
+             << ", Total Harga: Rp"<< std::fixed << std::setprecision(2) << current->total_harga << endl;
+        current = current->next;
+    }
+}
+
 
 void completePesananFIFO() {
     if (pesananHead == nullptr) {
@@ -104,6 +167,7 @@ void completePesananFIFO() {
     pesananHead = pesananHead->next;
 
     cout << "Pesanan dengan ID " << toDelete->pesanan_id << " telah diselesaikan.\n";
+    addHistory(toDelete->pesanan_id, toDelete->pelanggan_nama, toDelete->pelanggan_alamat, toDelete->pelanggan_telepon, toDelete->laptop_id, toDelete->jumlah, toDelete->total_harga);
     delete toDelete;
 }
 void completePesananLIFO() {
@@ -126,6 +190,7 @@ void completePesananLIFO() {
 
     Pesanan* toDelete = current->next;
     cout << "Pesanan dengan ID " << toDelete->pesanan_id << " telah diselesaikan.\n";
+    addHistory(toDelete->pesanan_id, toDelete->pelanggan_nama, toDelete->pelanggan_alamat, toDelete->pelanggan_telepon, toDelete->laptop_id, toDelete->jumlah, toDelete->total_harga);
     delete toDelete;
     current->next = nullptr;
 }
@@ -136,13 +201,20 @@ bool loginAdmin() {
     getline(cin,username);
     cout << "Masukkan password admin: ";
     getline(cin,password);
-    return (username == "admin" && password == "admin123");
+    string admin[2][2] = {{"admin1", "admin1"},
+                         {"admin2", "admin2"}};
+    for (int i = 0; i < 2; ++i) {
+        if (username == admin[i][0] && password == admin[i][1]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void inputPesanan(){
     string nama, alamat, telepon;
     int laptop_id, jumlah;
-    cout << "Nama Pelanggan: ";
+    cout << "\nNama Pelanggan: ";
     getline(cin,nama);
     cout << "Alamat: ";
     getline(cin,alamat);
@@ -154,7 +226,6 @@ void inputPesanan(){
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
     }
-
     if (laptop == nullptr) {
         cout << "Laptop dengan ID " << laptop_id << " tidak ditemukan.\n";
         _getch();
@@ -172,7 +243,7 @@ void menuPelanggan() {
     int pilihan, laptop_id, jumlah;
     string nama, alamat, telepon;
 
-int pilihanCariLaptop;
+    int pilihanCariLaptop;
 
     do {
         string menuPelangganHeader = "Menu Pelanggan";
@@ -183,9 +254,12 @@ int pilihanCariLaptop;
         switch (pilihan) {
             case 0:
                 displayLaptops();
-                cout << "\n\tKlik untuk next\n";
+                cout << "\n\nKlik untuk next\n";
                 _getch();
                 system("cls");
+                if (laptopHead == nullptr) {
+                    break;
+                }
                 pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
                 if (pilihanCariLaptop == 0){
                     // SEARCHING DISINI nanti
@@ -193,8 +267,11 @@ int pilihanCariLaptop;
                 break;
             case 1:
                 displayLaptops();
+                if (laptopHead == nullptr) {
+                    break;
+                }
                 inputPesanan();
-                cout << "\n\tKlik untuk next\n";
+                cout << "\n\nKlik untuk next\n";
                 _getch();
                 system("cls");
                 break;
@@ -435,7 +512,7 @@ void menuAdmin() {
 
     do {
         string menuAdminHeader = "Menu Admin";
-        string menuAdmin[] = {"Lihat Laptop", "Tambah Laptop","Ubah Laptop", "Hapus Laptop", "Lihat Pesanan", "Keluar"};
+        string menuAdmin[] = {"Lihat Laptop", "Tambah Laptop","Ubah Laptop", "Hapus Laptop", "Lihat Pesanan","History Pesanan", "Keluar"};
         int pilihanTambahLaptop, pilihanUbahLaptop, pilihanHapusLaptop;
         string model;
         string ubahLaptopHeader = "Ubah Laptop?";
@@ -445,9 +522,9 @@ void menuAdmin() {
         string ubahLaptop[] = {"Ya", "Kembali"};
         string hapusLaptop[] = {"Ya", "Kembali"};
         string metodeSort[] = {"Merge Sort", "Shell Sort", "Kembali"};
-        pilihan = showmenu(6, menuAdmin, menuAdminHeader);
+        pilihan = showmenu(7, menuAdmin, menuAdminHeader);
                 string donePesananHeader = "Selesaikan Pesanan?";
-                string donePesanan[] = {"FIFO", "LIFO","Kembali"};
+                string donePesanan[] = {"Pesanan di Awal", "Pesanan di Akhir","Kembali"};
                 int pilihanDonePesanan;
         switch (pilihan) {
             case 0:
@@ -460,7 +537,7 @@ void menuAdmin() {
                     break;
                 }
                 displayLaptops();
-                cout << "\n\tKlik untuk next\n";
+                cout << "\n\nKlik untuk next\n";
                 _getch();
                 system("cls");
                 break;
@@ -477,12 +554,16 @@ void menuAdmin() {
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
+          
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
                     system("cls");
                     break;
                 }
                 displayLaptops();
+                if (laptopHead == nullptr) {
+                    break;
+                }
                 int id;
                 cout << "Cari Laptop berdasarkan model: ";
                 cin.clear();
@@ -496,12 +577,17 @@ void menuAdmin() {
                 system("cls");
                 break;
             case 3:
+                
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
                     system("cls");
                     break;
                 }
                 displayLaptops();
+                if (laptopHead == nullptr) {
+                    break;
+                }
+                // bawah ini ganti searching
                 cout << "Cari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
@@ -513,6 +599,9 @@ void menuAdmin() {
                 break;
             case 4:
                 displayPesanan();
+                if (pesananHead == nullptr) {
+                    break;
+                }
                 pilihanDonePesanan = showmenu(3, donePesanan, donePesananHeader);
                 if (pilihanDonePesanan == 0){
                     completePesananFIFO();
@@ -520,13 +609,22 @@ void menuAdmin() {
                     completePesananLIFO();
                 }
                 break;
-            default:
-                cout << "Pilihan tidak valid.\n";
+            case 5:
+                displayHistory();
+                if (historyHead == nullptr) {
+                    break;
+                }
+                cout << "\n\nKlik untuk next\n";
+                _getch();
+                system("cls");
+                break;
+            case 6:
+                cout << "Telah Logout\n";
                 break;
         }
-    } while (pilihan != 5);
+    } while (pilihan != 6);
 }
-
+// ============================================MAIN================================================ //
 int main() {
     int pilihan;
 
@@ -550,7 +648,7 @@ int main() {
                 } else {
                     system("cls");
                     cout << "Username atau password salah.\n";
-                    cout << "Klik untuk next\n";
+                    cout << "\n\nKlik untuk next\n";
                     _getch();
                 }
                 break;
