@@ -346,23 +346,17 @@ void updateLaptop(int id) {
     current->harga = harga;
     cout << "Laptop berhasil diperbarui.\n";
 }
-
-// Helper function to create the Bad Character Heuristic table for Boyer-Moore
 void buildBadCharTable(const string& pattern, int badChar[]) {
     int size = pattern.size();
 
-    // Initialize all occurrences as -1
     for (int i = 0; i < 256; i++) {
         badChar[i] = -1;
     }
 
-    // Fill the actual value of last occurrence of a character
     for (int i = 0; i < size; i++) {
         badChar[(int)pattern[i]] = i;
     }
 }
-
-// Boyer-Moore search function
 bool boyerMooreSearch(const string& text, const string& pattern) {
     int badChar[256];
     buildBadCharTable(pattern, badChar);
@@ -387,8 +381,6 @@ bool boyerMooreSearch(const string& text, const string& pattern) {
     }
     return false;
 }
-
-// Function to search for laptops by model name using Boyer-Moore and display all matches
 void searchLaptopsByModel(const string& modelSearch) {
     Laptop* current = laptopHead;
     bool found = false;
@@ -408,8 +400,6 @@ void searchLaptopsByModel(const string& modelSearch) {
         cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
     }
 }
-
-// Function to split the linked list into two halves
 void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
     Laptop* fast;
     Laptop* slow;
@@ -428,8 +418,6 @@ void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
     *backRef = slow->next;
     slow->next = nullptr;
 }
-
-// Merging two sorted lists by brand (merk)
 Laptop* sortedMergeByBrand(Laptop* a, Laptop* b) {
     if (a == nullptr) return b;
     if (b == nullptr) return a;
@@ -444,8 +432,6 @@ Laptop* sortedMergeByBrand(Laptop* a, Laptop* b) {
     }
     return result;
 }
-
-// Recursive merge sort function to sort by brand
 void mergeSortByBrand(Laptop** headRef) {
     Laptop* head = *headRef;
     if (head == nullptr || head->next == nullptr) return;
@@ -463,7 +449,7 @@ void mergeSortByBrand(Laptop** headRef) {
 void shellSortByPrice(Laptop** headRef) {
     int n = 0;
     Laptop* temp = *headRef;
-    while (temp != nullptr) {  // Counting the number of nodes
+    while (temp != nullptr) {
         n++;
         temp = temp->next;
     }
@@ -471,7 +457,7 @@ void shellSortByPrice(Laptop** headRef) {
     for (int gap = n / 2; gap > 0; gap /= 2) {
         for (int i = gap; i < n; i++) {
             Laptop* jNode = *headRef;
-            for (int k = 0; k < i; k++) jNode = jNode->next;  // Moving to the i-th node
+            for (int k = 0; k < i; k++) jNode = jNode->next;
 
             double currentHarga = jNode->harga;
             string currentMerk = jNode->merk, currentModel = jNode->model, currentSpesifikasi = jNode->spesifikasi;
@@ -481,7 +467,7 @@ void shellSortByPrice(Laptop** headRef) {
             Laptop* gapNode;
             for (j = i; j >= gap; j -= gap) {
                 gapNode = *headRef;
-                for (int k = 0; k < j - gap; k++) gapNode = gapNode->next;  // Moving to the (j - gap)-th node
+                for (int k = 0; k < j - gap; k++) gapNode = gapNode->next;
 
                 if (gapNode->harga <= currentHarga) break;
 
