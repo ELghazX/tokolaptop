@@ -385,6 +385,7 @@ void searchLaptopsByModel(const std::string& modelSearch) {
 
     while (current != nullptr) {
         if (boyerMooreSearch(current->model, modelSearchLower)) {
+            
             std::cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
                       << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
                       << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)
@@ -393,9 +394,20 @@ void searchLaptopsByModel(const std::string& modelSearch) {
         }
         current = current->next;
     }
-
     if (!found) {
-        std::cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
+        system("cls");
+        cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
+        string searchOptions[] = {"Lanjutkan tanpa search", "Search ulang"};
+        int searchChoice = showmenu(2, searchOptions, "Pilih opsi:");
+        if (searchChoice == 1) {
+            string modelSearch;
+            cout << "Masukkan model yang ingin dicari: ";
+            getline(cin, modelSearch);
+            searchLaptopsByModel(modelSearch);
+        }
+        else{
+            displayLaptops();
+        }
     }
 }
 void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
@@ -538,7 +550,6 @@ void menuAdmin() {
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
-
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
                     system("cls");
@@ -549,11 +560,12 @@ void menuAdmin() {
                     break;
                 }
                 int id;
-                cout << "Cari Laptop berdasarkan model: ";
+                cout << "\nCari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
                 searchLaptopsByModel(model);
-                cout << "Masukkan ID Laptop yang ingin diubah: ";
+                
+                cout << "\nMasukkan ID Laptop yang ingin diubah: ";
                 cin >> id;cin.ignore();
                 updateLaptop(id);
                 cout << "Perubahan berhasil disimpan.\n"; ;
@@ -561,7 +573,6 @@ void menuAdmin() {
                 system("cls");
                 break;
             case 3:
-
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
                     system("cls");
@@ -572,7 +583,7 @@ void menuAdmin() {
                     break;
                 }
                 // bawah ini ganti searching
-                cout << "Cari Laptop berdasarkan model: ";
+                cout << "\nCari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
                 searchLaptopsByModel(model);
@@ -619,11 +630,11 @@ void menuPelanggan() {
         string menuPelanggan[] = {"Lihat Laptop", "Beli Laptop", "Keluar"};
         string cariLaptopHeader = "Cari Laptop?";
         string cariLaptop[] = {"Ya", "Kembali"};
-        string metodeSort[] = {"Merge Sort", "Shell Sort", "Kembali"};
+        string metodeSort[] = {"Brand", "Harga", "Kembali"};
         pilihan = showmenu(3, menuPelanggan, menuPelangganHeader);
         switch (pilihan) {
             case 0:
-                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan");
+                pilihan = showmenu(3, metodeSort, "Urutkan Berdasarkan");
                 if (pilihan == 0) {
                     mergeSortByBrand(&laptopHead);
                 } else if (pilihan == 1) {
