@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <string>
 #include <iomanip>
+#include <cmath>
 
 #include "select.h"
 using namespace std;
@@ -57,6 +58,7 @@ Pesanan* pesananHead = nullptr;
 History* historyHead = nullptr;
 int lastLaptopId = 0;
 // ============================================FUNGSI FUNGSI================================================ //
+
 void displayLaptops() {
     Laptop* current = laptopHead;
     if (current == nullptr) {
@@ -204,9 +206,10 @@ bool loginAdmin() {
     getline(cin,username);
     cout << "Masukkan password admin: ";
     getline(cin,password);
-    string admin[2][2] = {{"admin1", "admin1"},
-                         {"admin2", "admin2"}};
-    for (int i = 0; i < 2; ++i) {
+    string admin[3][3] = {{"admin1", "admin1"},
+                         {"admin2", "admin2"},
+                         {"3","3"}};
+    for (int i = 0; i < 3; ++i) {
         if (username == admin[i][0] && password == admin[i][1]) {
             return true;
         }
@@ -278,6 +281,92 @@ void inputLaptop(string &merk, string &model, string &spesifikasi, int &stok, do
                 cin >> harga;cin.ignore();
             }
 }
+Laptop* fiboSearchLaptopById(Laptop* head, int id) {
+    if (head == nullptr) return nullptr;
+
+    int fibMMm2 = 0;  // (m-2)'th Fibonacci No.
+    int fibMMm1 = 1;  // (m-1)'th Fibonacci No.
+    int fibM = fibMMm2 + fibMMm1;  // m'th Fibonacci
+
+    int n = 0;
+    Laptop* temp = head;
+    while (temp != nullptr) {
+        n++;
+        temp = temp->next;
+    }
+
+    while (fibM < n) {
+        fibMMm2 = fibMMm1;
+        fibMMm1 = fibM;
+        fibM = fibMMm2 + fibMMm1;
+    }
+
+    int offset = -1;
+    Laptop* current = head;
+
+    while (fibM > 1) {
+        int i = std::min(offset + fibMMm2, n - 1);
+        Laptop* temp = head;
+        for (int j = 0; j < i; j++) {
+            temp = temp->next;
+        }
+
+        if (temp->laptop_id < id) {
+            fibM = fibMMm1;
+            fibMMm1 = fibMMm2;
+            fibMMm2 = fibM - fibMMm1;
+            offset = i;
+        } else if (temp->laptop_id > id) {
+            fibM = fibMMm2;
+            fibMMm1 = fibMMm1 - fibMMm2;
+            fibMMm2 = fibM - fibMMm1;
+        } else {
+            return temp;
+        }
+    }
+
+    if (fibMMm1 && offset < n - 1) {
+        Laptop* temp = head;
+        for (int j = 0; j <= offset; j++) {
+            temp = temp->next;
+        }
+        if (temp->laptop_id == id) {
+           return temp;
+        }
+    }
+
+    return nullptr;
+}
+// void deleteLaptop(int id) {
+//     if (laptopHead == nullptr) {
+//         cout << "Tidak ada laptop untuk dihapus.\n";
+//         return;
+//     }
+//     if (id > lastLaptopId) {
+//         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
+//         return;
+//     }
+
+//     if (laptopHead->laptop_id == id) {
+//         Laptop* toDelete = laptopHead;
+//         laptopHead = laptopHead->next;
+//         delete toDelete;
+//         cout << "Laptop dengan ID " << id << " berhasil dihapus.\n";
+//         return;
+//     }
+
+//     Laptop* current = fiboSearchLaptopById(laptopHead, id);
+//     if (current->next == nullptr) {
+//         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
+//         return;
+//     }
+
+//     Laptop* toDelete = current->next;
+//     current->next = current->next->next;
+//     delete toDelete;
+//     cout << "Laptop dengan ID " << id << " berhasil dihapus.\n";
+// }
+
 void deleteLaptop(int id) {
     if (laptopHead == nullptr) {
         cout << "Tidak ada laptop untuk dihapus.\n";
@@ -292,28 +381,59 @@ void deleteLaptop(int id) {
         return;
     }
 
-    Laptop* current = laptopHead;
-    while (current->next != nullptr && current->next->laptop_id != id) {
-        current = current->next;
-    }
+    Laptop* current = fiboSearchLaptopById(laptopHead, id);
 
-    if (current->next == nullptr) {
+    if (current == nullptr || current->laptop_id != id) {
         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
         return;
     }
 
-    Laptop* toDelete = current->next;
-    current->next = current->next->next;
-    delete toDelete;
-    cout << "Laptop dengan ID " << id << " berhasil dihapus.\n";
+    Laptop* prev = laptopHead;
+    while (prev->next != nullptr && prev->next != current) {
+        prev = prev->next;
+    }
+
+    if (prev->next == current) {
+        prev->next = current->next;
+        delete current;
+        cout << "Laptop dengan ID " << id << " berhasil dihapus.\n";
+    } else {
+        cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
+    }
 }
-void updateLaptop(int id) {
-    Laptop* current = laptopHead;
-    while (current != nullptr && current->laptop_id != id) {
+
+Laptop* jumpSearchLaptopById(Laptop* head, int id) {
+    if (head == nullptr) return nullptr;
+
+    int step = sqrt(lastLaptopId);
+    Laptop* prev = nullptr;
+    Laptop* current = head;
+
+    while (current != nullptr && current->laptop_id < id) {
+        prev = current;
+        for (int i = 0; i < step && current->next != nullptr; i++) {
+            current = current->next;
+        }
+    }
+
+    while (current != nullptr && current->laptop_id < id) {
         current = current->next;
     }
-    // ganti jadi jump search di atas ini
 
+    if (current != nullptr && current->laptop_id == id) {
+        return current;
+    }
+
+    return nullptr;
+}
+
+void updateLaptop(int id) {
+    if (id > lastLaptopId) {
+        cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
+        return;
+    }
+
+    Laptop* current = jumpSearchLaptopById(laptopHead, id);
     if (current == nullptr) {
         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
         return;
@@ -329,7 +449,7 @@ void updateLaptop(int id) {
     current->spesifikasi = spesifikasi;
     current->stok = stok;
     current->harga = harga;
-    cout << "Laptop berhasil diperbarui.\n";
+    cout << "List laptop berhasil diperbarui.\n";
 }
 void toLowerCase(std::string &str) {
     for (char &c : str) {
@@ -407,6 +527,7 @@ void searchLaptopsByModel(const std::string& modelSearch) {
             cout << "Masukkan model yang ingin dicari: ";
             getline(cin, modelSearch);
             searchLaptopsByModel(modelSearch);
+            modelSearch.clear();
         }
         else{
             displayLaptops();
@@ -430,6 +551,77 @@ void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
     *frontRef = source;
     *backRef = slow->next;
     slow->next = nullptr;
+}
+
+Laptop* sortedMergeById(Laptop* a, Laptop* b) {
+    if (a == nullptr) return b;
+    if (b == nullptr) return a;
+
+    Laptop* result = nullptr;
+    if (a->laptop_id <= b->laptop_id) {
+        result = a;
+        result->next = sortedMergeById(a->next, b);
+    } else {
+        result = b;
+        result->next = sortedMergeById(a, b->next);
+    }
+    return result;
+}
+
+Laptop* getTail(Laptop* cur) {
+    while (cur != nullptr && cur->next != nullptr) {
+        cur = cur->next;
+    }
+    return cur;
+}
+
+Laptop* partition(Laptop* head, Laptop* end, Laptop** newHead, Laptop** newEnd) {
+    Laptop* pivot = end;
+    Laptop* prev = nullptr, *cur = head, *tail = pivot;
+
+    while (cur != pivot) {
+        if (cur->laptop_id < pivot->laptop_id) {
+            if ((*newHead) == nullptr) (*newHead) = cur;
+            prev = cur;
+            cur = cur->next;
+        } else {
+            if (prev) prev->next = cur->next;
+            Laptop* temp = cur->next;
+            cur->next = nullptr;
+            tail->next = cur;
+            tail = cur;
+            cur = temp;
+        }
+    }
+
+    if ((*newHead) == nullptr) (*newHead) = pivot;
+    (*newEnd) = tail;
+    return pivot;
+}
+
+Laptop* quickSortRecur(Laptop* head, Laptop* end) {
+    if (!head || head == end) return head;
+
+    Laptop* newHead = nullptr, *newEnd = nullptr;
+    Laptop* pivot = partition(head, end, &newHead, &newEnd);
+
+    if (newHead != pivot) {
+        Laptop* temp = newHead;
+        while (temp->next != pivot) {
+            temp = temp->next;
+        }
+        temp->next = nullptr;
+        newHead = quickSortRecur(newHead, temp);
+        temp = getTail(newHead);
+        temp->next = pivot;
+    }
+
+    pivot->next = quickSortRecur(pivot->next, newEnd);
+    return newHead;
+}
+
+void quickSortById(Laptop** headRef) {
+    (*headRef) = quickSortRecur(*headRef, getTail(*headRef));
 }
 Laptop* sortedMergeByBrand(Laptop* a, Laptop* b) {
     if (a == nullptr) return b;
@@ -553,6 +745,7 @@ void menuAdmin() {
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
+                quickSortById(&laptopHead);
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
                     cls();
@@ -572,15 +765,22 @@ void menuAdmin() {
                     break;
                 }
                 searchLaptopsByModel(model);
+                model.clear();
                 
                 cout << "\nMasukkan ID Laptop yang ingin diubah: ";
                 cin >> id;cin.ignore();
+                while (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "\nInput tidak valid\nMasukkan ID Laptop yang ingin diubah: ";
+                    cin >> id;cin.ignore();
+                }
                 updateLaptop(id);
-                cout << "Perubahan berhasil disimpan.\n"; ;
                 _getch();
                 cls();
                 break;
             case 3:
+                quickSortById(&laptopHead);
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
                     cls();
@@ -590,7 +790,6 @@ void menuAdmin() {
                 if (laptopHead == nullptr) {
                     break;
                 }
-                // bawah ini ganti searching
                 cout << "\nCari Laptop berdasarkan model: ";
                 cin.clear();
                 getline(cin, model);
@@ -602,7 +801,14 @@ void menuAdmin() {
                 searchLaptopsByModel(model);
                 cout << "Masukkan ID Laptop yang ingin dihapus: ";
                 cin >> id;cin.ignore();
+                while (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "\nInput tidak valid\nMasukkan ID Laptop yang ingin dihapus: ";
+                    cin >> id;cin.ignore();
+                }
                 deleteLaptop(id);
+                _getch();
                 cls();
                 break;
             case 4:
