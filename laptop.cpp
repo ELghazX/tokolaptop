@@ -507,14 +507,14 @@ void menuAdmin() {
         string tambahLaptop[] = {"Ya", "Kembali"};
         string ubahLaptop[] = {"Ya", "Kembali"};
         string hapusLaptop[] = {"Ya", "Kembali"};
-        string metodeSort[] = {"Merge Sort", "Shell Sort", "Kembali"};
+        string metodeSort[] = {"Brand (Merge Sort)", "Harga (Shell Sort)", "Kembali"};
         pilihan = showmenu(7, menuAdmin, menuAdminHeader);
                 string donePesananHeader = "Selesaikan Pesanan?";
                 string donePesanan[] = {"Pesanan di Awal", "Pesanan di Akhir","Kembali"};
                 int pilihanDonePesanan;
         switch (pilihan) {
             case 0:
-                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan");
+                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan berdasarkan");
                 if (pilihan == 0) {
                     mergeSortByBrand(&laptopHead);
                 } else if (pilihan == 1) {
