@@ -239,49 +239,6 @@ void inputPesanan(){
     addPesanan(rand() % 1000 + 1, nama, alamat, telepon, laptop_id, jumlah);
 }
 
-void menuPelanggan() {
-    int pilihan, laptop_id, jumlah;
-    string nama, alamat, telepon;
-
-    int pilihanCariLaptop;
-
-    do {
-        string menuPelangganHeader = "Menu Pelanggan";
-        string menuPelanggan[] = {"Lihat Laptop", "Beli Laptop", "Keluar"};
-        string cariLaptopHeader = "Cari Laptop?";
-        string cariLaptop[] = {"Ya", "Kembali"};
-        pilihan = showmenu(3, menuPelanggan, menuPelangganHeader);
-        switch (pilihan) {
-            case 0:
-                displayLaptops();
-                cout << "\n\nKlik untuk next\n";
-                _getch();
-                system("cls");
-                if (laptopHead == nullptr) {
-                    break;
-                }
-                pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
-                if (pilihanCariLaptop == 0){
-                    // SEARCHING DISINI nanti
-                }
-                break;
-            case 1:
-                displayLaptops();
-                if (laptopHead == nullptr) {
-                    break;
-                }
-                inputPesanan();
-                cout << "\n\nKlik untuk next\n";
-                _getch();
-                system("cls");
-                break;
-            case 2:
-                cout << "Terima kasih telah mengunjungi toko kami!\n";
-                break;
-        }
-    } while (pilihan != 2);
-}
-
 void inputLaptop(string &merk, string &model, string &spesifikasi, int &stok, double &harga){
       cout << "Merk: ";
             getline(cin, merk);
@@ -625,6 +582,57 @@ void menuAdmin() {
                 break;
         }
     } while (pilihan != 6);
+}
+void menuPelanggan() {
+    int pilihan, laptop_id, jumlah;
+    string nama, alamat, telepon;
+
+    int pilihanCariLaptop;
+
+    do {
+        string menuPelangganHeader = "Menu Pelanggan";
+        string menuPelanggan[] = {"Lihat Laptop", "Beli Laptop", "Keluar"};
+        string cariLaptopHeader = "Cari Laptop?";
+        string cariLaptop[] = {"Ya", "Kembali"};
+        string metodeSort[] = {"Merge Sort", "Shell Sort", "Kembali"};
+        pilihan = showmenu(3, menuPelanggan, menuPelangganHeader);
+        switch (pilihan) {
+            case 0:
+                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan");
+                if (pilihan == 0) {
+                    mergeSortByBrand(&laptopHead);
+                } else if (pilihan == 1) {
+                    shellSortByPrice(&laptopHead);
+                } else {
+                    break;
+                }
+                displayLaptops();
+                cout << "\n\nKlik untuk next\n";
+                _getch();
+                system("cls");
+                if (laptopHead == nullptr) {
+                    break;
+                }
+                pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
+                if (pilihanCariLaptop == 0){
+                    // SEARCHING DISINI nanti
+                }
+                break;
+            case 1:
+                displayLaptops();
+                if (laptopHead == nullptr) {
+                    break;
+                }
+                inputPesanan();
+                cout << "\n\nKlik untuk next\n";
+                _getch();
+                system("cls");
+                break;
+            case 2:
+                cout << "Terima kasih telah mengunjungi toko kami!\n";
+                break;
+        }
+    } while (pilihan != 2);
 }
 // ============================================MAIN================================================ //
 int main() {
