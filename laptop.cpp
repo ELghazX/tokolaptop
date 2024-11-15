@@ -69,7 +69,7 @@ void displayLaptops() {
 
 }
 void addLaptop(string merk, string model, string spesifikasi, int stok, double harga) {
-    int id = ++lastLaptopId; 
+    int id = ++lastLaptopId;
     Laptop* newLaptop = new Laptop(id, merk, model, spesifikasi, stok, harga);
 
     if (laptopHead == nullptr) {
@@ -90,14 +90,14 @@ void addPesanan(int pesanan_id, string nama, string alamat, string telepon, int 
     }
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
-    } 
+    }
 
     if (laptop == nullptr || laptop->stok < jumlah) {
         cout << "Laptop tidak tersedia atau stok kurang.\n";
         return;
     }
     double total_harga = laptop->harga * jumlah;
-    
+
     Pesanan* newPesanan = new Pesanan(pesanan_id, nama, alamat, telepon, laptop_id, jumlah, total_harga);
 
     if (pesananHead == nullptr) {
@@ -328,6 +328,7 @@ void updateLaptop(int id) {
     while (current != nullptr && current->laptop_id != id) {
         current = current->next;
     }
+    // ganti jadi jump search di atas ini
 
     if (current == nullptr) {
         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
@@ -346,58 +347,74 @@ void updateLaptop(int id) {
     current->harga = harga;
     cout << "Laptop berhasil diperbarui.\n";
 }
-void buildBadCharTable(const string& pattern, int badChar[]) {
-    int size = pattern.size();
+void toLowerCase(std::string &str) {
+    for (char &c : str) {
+        if (c >= 'A' && c <= 'Z') {
+            c = c + ('a' - 'A');  // Convert uppercase to lowercase
+        }
+    }
+}
 
+void buildBadCharTable(const std::string& pattern, int badChar[]) {
+    int size = pattern.size();
     for (int i = 0; i < 256; i++) {
         badChar[i] = -1;
     }
-
     for (int i = 0; i < size; i++) {
         badChar[(int)pattern[i]] = i;
     }
 }
-bool boyerMooreSearch(const string& text, const string& pattern) {
-    int badChar[256];
-    buildBadCharTable(pattern, badChar);
 
-    int m = pattern.size();
-    int n = text.size();
+bool boyerMooreSearch(const std::string& text, const std::string& pattern) {
+    int badChar[256];
+    std::string textLower = text;
+    std::string patternLower = pattern;
+
+    toLowerCase(textLower);
+    toLowerCase(patternLower);
+
+    buildBadCharTable(patternLower, badChar);
+
+    int m = patternLower.size();
+    int n = textLower.size();
     int shift = 0;
 
     while (shift <= (n - m)) {
         int j = m - 1;
 
-        while (j >= 0 && pattern[j] == text[shift + j]) {
+        while (j >= 0 && patternLower[j] == textLower[shift + j]) {
             j--;
         }
 
         if (j < 0) {
             return true;
-            shift += (shift + m < n) ? m - badChar[text[shift + m]] : 1;
+            shift += (shift + m < n) ? m - badChar[textLower[shift + m]] : 1;
         } else {
-            shift += max(1, j - badChar[text[shift + j]]);
+            shift += std::max(1, j - badChar[textLower[shift + j]]);
         }
     }
     return false;
 }
-void searchLaptopsByModel(const string& modelSearch) {
+
+void searchLaptopsByModel(const std::string& modelSearch) {
     Laptop* current = laptopHead;
     bool found = false;
+    std::string modelSearchLower = modelSearch;
+    toLowerCase(modelSearchLower); // Convert the search term to lowercase
 
     while (current != nullptr) {
-        if (boyerMooreSearch(current->model, modelSearch)) {
-            cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
-                 << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
-                 << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)
-                 << current->harga << endl;
+        if (boyerMooreSearch(current->model, modelSearchLower)) {
+            std::cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
+                      << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
+                      << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)
+                      << current->harga << std::endl;
             found = true;
         }
         current = current->next;
     }
 
     if (!found) {
-        cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
+        std::cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
     }
 }
 void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
@@ -540,7 +557,7 @@ void menuAdmin() {
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
-          
+
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
                     system("cls");
@@ -563,7 +580,7 @@ void menuAdmin() {
                 system("cls");
                 break;
             case 3:
-                
+
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
                     system("cls");
@@ -616,6 +633,7 @@ int main() {
 
     addLaptop("Dell", "Inspiron 14", "Intel i5, 8GB RAM, 256GB SSD", 10, 7000000);
     addLaptop("HP", "Pavilion 15", "Intel i7, 16GB RAM, 512GB SSD", 5, 12000000);
+
 
     do {
     system("cls");
