@@ -621,7 +621,7 @@ void menuAdmin() {
 }
 void menuPelanggan() {
     int pilihan, laptop_id, jumlah;
-    string nama, alamat, telepon;
+    string nama, alamat, telepon,model;
 
     int pilihanCariLaptop;
 
@@ -649,16 +649,20 @@ void menuPelanggan() {
                 if (laptopHead == nullptr) {
                     break;
                 }
-                pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
-                if (pilihanCariLaptop == 0){
-                    // SEARCHING DISINI nanti
-                }
                 break;
             case 1:
                 displayLaptops();
                 if (laptopHead == nullptr) {
                     break;
                 }
+                cout << "\nCari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                if (model.empty()) {
+                    system("cls");
+                    break;
+                }
+                searchLaptopsByModel(model);
                 inputPesanan();
                 cout << "\n\nKlik untuk next\n";
                 _getch();
