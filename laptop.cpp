@@ -69,7 +69,7 @@ void displayLaptops() {
 
 }
 void addLaptop(string merk, string model, string spesifikasi, int stok, double harga) {
-    int id = ++lastLaptopId; 
+    int id = ++lastLaptopId;
     Laptop* newLaptop = new Laptop(id, merk, model, spesifikasi, stok, harga);
 
     if (laptopHead == nullptr) {
@@ -90,14 +90,14 @@ void addPesanan(int pesanan_id, string nama, string alamat, string telepon, int 
     }
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
-    } 
+    }
 
     if (laptop == nullptr || laptop->stok < jumlah) {
         cout << "Laptop tidak tersedia atau stok kurang.\n";
         return;
     }
     double total_harga = laptop->harga * jumlah;
-    
+
     Pesanan* newPesanan = new Pesanan(pesanan_id, nama, alamat, telepon, laptop_id, jumlah, total_harga);
 
     if (pesananHead == nullptr) {
@@ -222,6 +222,12 @@ void inputPesanan(){
     getline(cin,telepon);
     cout << "Masukkan ID Laptop yang ingin dibeli: ";
     cin >> laptop_id;cin.ignore();
+    while (cin.fail()) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nInput tidak valid\nMasukkan ID Laptop yang ingin dibeli: ";
+        cin >> laptop_id;cin.ignore();
+    }
     Laptop* laptop = laptopHead;
     while (laptop != nullptr && laptop->laptop_id != laptop_id) {
         laptop = laptop->next;
@@ -233,53 +239,16 @@ void inputPesanan(){
         return;
     }
 
-    cout << "Membeli " << laptop->merk << " " << laptop->model << endl;
+    cout << "\nMembeli " << laptop->merk << " " << laptop->model << endl;
     cout << "Masukkan jumlah: ";
     cin >> jumlah;cin.ignore();
+    while (cin.fail()) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nInput tidak valid\nMasukkan jumlah: ";
+        cin >> jumlah;cin.ignore();
+    }
     addPesanan(rand() % 1000 + 1, nama, alamat, telepon, laptop_id, jumlah);
-}
-
-void menuPelanggan() {
-    int pilihan, laptop_id, jumlah;
-    string nama, alamat, telepon;
-
-    int pilihanCariLaptop;
-
-    do {
-        string menuPelangganHeader = "Menu Pelanggan";
-        string menuPelanggan[] = {"Lihat Laptop", "Beli Laptop", "Keluar"};
-        string cariLaptopHeader = "Cari Laptop?";
-        string cariLaptop[] = {"Ya", "Kembali"};
-        pilihan = showmenu(3, menuPelanggan, menuPelangganHeader);
-        switch (pilihan) {
-            case 0:
-                displayLaptops();
-                cout << "\n\nKlik untuk next\n";
-                _getch();
-                system("cls");
-                if (laptopHead == nullptr) {
-                    break;
-                }
-                pilihanCariLaptop = showmenu(2, cariLaptop, cariLaptopHeader);
-                if (pilihanCariLaptop == 0){
-                    // SEARCHING DISINI nanti 
-                }
-                break;
-            case 1:
-                displayLaptops();
-                if (laptopHead == nullptr) {
-                    break;
-                }
-                inputPesanan();
-                cout << "\n\nKlik untuk next\n";
-                _getch();
-                system("cls");
-                break;
-            case 2:
-                cout << "Terima kasih telah mengunjungi toko kami!\n";
-                break;
-        }
-    } while (pilihan != 2);
 }
 
 void inputLaptop(string &merk, string &model, string &spesifikasi, int &stok, double &harga){
@@ -291,8 +260,20 @@ void inputLaptop(string &merk, string &model, string &spesifikasi, int &stok, do
             getline(cin, spesifikasi);
             cout << "Stok: ";
             cin >> stok;cin.ignore();
+            while (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "\nInput tidak valid\nStok: ";
+                cin >> stok;cin.ignore();
+            }
             cout << "Harga: ";
             cin >> harga;cin.ignore();
+            while (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "\nInput tidak valid\nHarga: ";
+                cin >> harga;cin.ignore();
+            }
 }
 void deleteLaptop(int id) {
     if (laptopHead == nullptr) {
@@ -328,6 +309,7 @@ void updateLaptop(int id) {
     while (current != nullptr && current->laptop_id != id) {
         current = current->next;
     }
+    // ganti jadi jump search di atas ini
 
     if (current == nullptr) {
         cout << "Laptop dengan ID " << id << " tidak ditemukan.\n";
@@ -346,6 +328,179 @@ void updateLaptop(int id) {
     current->harga = harga;
     cout << "Laptop berhasil diperbarui.\n";
 }
+void toLowerCase(std::string &str) {
+    for (char &c : str) {
+        if (c >= 'A' && c <= 'Z') {
+            c = c + ('a' - 'A');  // Convert uppercase to lowercase
+        }
+    }
+}
+
+void buildBadCharTable(const std::string& pattern, int badChar[]) {
+    int size = pattern.size();
+    for (int i = 0; i < 256; i++) {
+        badChar[i] = -1;
+    }
+    for (int i = 0; i < size; i++) {
+        badChar[(int)pattern[i]] = i;
+    }
+}
+
+bool boyerMooreSearch(const std::string& text, const std::string& pattern) {
+    int badChar[256];
+    std::string textLower = text;
+    std::string patternLower = pattern;
+
+    toLowerCase(textLower);
+    toLowerCase(patternLower);
+
+    buildBadCharTable(patternLower, badChar);
+
+    int m = patternLower.size();
+    int n = textLower.size();
+    int shift = 0;
+
+    while (shift <= (n - m)) {
+        int j = m - 1;
+
+        while (j >= 0 && patternLower[j] == textLower[shift + j]) {
+            j--;
+        }
+
+        if (j < 0) {
+            return true;
+            shift += (shift + m < n) ? m - badChar[textLower[shift + m]] : 1;
+        } else {
+            shift += std::max(1, j - badChar[textLower[shift + j]]);
+        }
+    }
+    return false;
+}
+
+void searchLaptopsByModel(const std::string& modelSearch) {
+    Laptop* current = laptopHead;
+    bool found = false;
+    std::string modelSearchLower = modelSearch;
+    toLowerCase(modelSearchLower); // Convert the search term to lowercase
+
+    while (current != nullptr) {
+        if (boyerMooreSearch(current->model, modelSearchLower)) {
+            
+            std::cout << "ID: " << current->laptop_id << ", Merk: " << current->merk
+                      << ", Model: " << current->model << ", Spesifikasi: " << current->spesifikasi
+                      << ", Stok: " << current->stok << ", Harga: Rp" << std::fixed << std::setprecision(2)
+                      << current->harga << std::endl;
+            found = true;
+        }
+        current = current->next;
+    }
+    if (!found) {
+        system("cls");
+        cout << "Tidak ada laptop dengan model yang mengandung kata \"" << modelSearch << "\" ditemukan.\n";
+        string searchOptions[] = {"Lanjutkan tanpa search", "Search ulang"};
+        int searchChoice = showmenu(2, searchOptions, "Pilih opsi:");
+        if (searchChoice == 1) {
+            string modelSearch;
+            cout << "Masukkan model yang ingin dicari: ";
+            getline(cin, modelSearch);
+            searchLaptopsByModel(modelSearch);
+        }
+        else{
+            displayLaptops();
+        }
+    }
+}
+void splitList(Laptop* source, Laptop** frontRef, Laptop** backRef) {
+    Laptop* fast;
+    Laptop* slow;
+    slow = source;
+    fast = source->next;
+
+    while (fast != nullptr) {
+        fast = fast->next;
+        if (fast != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = nullptr;
+}
+Laptop* sortedMergeByBrand(Laptop* a, Laptop* b) {
+    if (a == nullptr) return b;
+    if (b == nullptr) return a;
+
+    Laptop* result = nullptr;
+    if (a->merk <= b->merk) {
+        result = a;
+        result->next = sortedMergeByBrand(a->next, b);
+    } else {
+        result = b;
+        result->next = sortedMergeByBrand(a, b->next);
+    }
+    return result;
+}
+void mergeSortByBrand(Laptop** headRef) {
+    Laptop* head = *headRef;
+    if (head == nullptr || head->next == nullptr) return;
+
+    Laptop* a;
+    Laptop* b;
+    splitList(head, &a, &b);
+
+    mergeSortByBrand(&a);
+    mergeSortByBrand(&b);
+
+    *headRef = sortedMergeByBrand(a, b);
+}
+
+void shellSortByPrice(Laptop** headRef) {
+    int n = 0;
+    Laptop* temp = *headRef;
+    while (temp != nullptr) {
+        n++;
+        temp = temp->next;
+    }
+
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            Laptop* jNode = *headRef;
+            for (int k = 0; k < i; k++) jNode = jNode->next;
+
+            double currentHarga = jNode->harga;
+            string currentMerk = jNode->merk, currentModel = jNode->model, currentSpesifikasi = jNode->spesifikasi;
+            int currentStok = jNode->stok, currentLaptopId = jNode->laptop_id;
+
+            int j;
+            Laptop* gapNode;
+            for (j = i; j >= gap; j -= gap) {
+                gapNode = *headRef;
+                for (int k = 0; k < j - gap; k++) gapNode = gapNode->next;
+
+                if (gapNode->harga <= currentHarga) break;
+
+                jNode->harga = gapNode->harga;
+                jNode->merk = gapNode->merk;
+                jNode->model = gapNode->model;
+                jNode->spesifikasi = gapNode->spesifikasi;
+                jNode->stok = gapNode->stok;
+                jNode->laptop_id = gapNode->laptop_id;
+
+                jNode = gapNode;
+            }
+
+            jNode->harga = currentHarga;
+            jNode->merk = currentMerk;
+            jNode->model = currentModel;
+            jNode->spesifikasi = currentSpesifikasi;
+            jNode->stok = currentStok;
+            jNode->laptop_id = currentLaptopId;
+        }
+    }
+}
+
 void menuAdmin() {
     int pilihan, stok;
     double harga;
@@ -355,18 +510,28 @@ void menuAdmin() {
         string menuAdminHeader = "Menu Admin";
         string menuAdmin[] = {"Lihat Laptop", "Tambah Laptop","Ubah Laptop", "Hapus Laptop", "Lihat Pesanan","History Pesanan", "Keluar"};
         int pilihanTambahLaptop, pilihanUbahLaptop, pilihanHapusLaptop;
+        string model;
         string ubahLaptopHeader = "Ubah Laptop?";
         string tambahLaptopHeader = "Tambah Laptop?";
         string hapusLaptopHeader = "Hapus Laptop?";
         string tambahLaptop[] = {"Ya", "Kembali"};
         string ubahLaptop[] = {"Ya", "Kembali"};
         string hapusLaptop[] = {"Ya", "Kembali"};
+        string metodeSort[] = {"Brand (Merge Sort)", "Harga (Shell Sort)", "Kembali"};
         pilihan = showmenu(7, menuAdmin, menuAdminHeader);
                 string donePesananHeader = "Selesaikan Pesanan?";
                 string donePesanan[] = {"Pesanan di Awal", "Pesanan di Akhir","Kembali"};
                 int pilihanDonePesanan;
         switch (pilihan) {
             case 0:
+                pilihan = showmenu(3, metodeSort, "Pilih cara pengurutan berdasarkan");
+                if (pilihan == 0) {
+                    mergeSortByBrand(&laptopHead);
+                } else if (pilihan == 1) {
+                    shellSortByPrice(&laptopHead);
+                } else {
+                    break;
+                }
                 displayLaptops();
                 cout << "\n\nKlik untuk next\n";
                 _getch();
@@ -385,7 +550,6 @@ void menuAdmin() {
                 cout << "Laptop " <<merk<<" "<<model << " berhasil ditambahkan.\n";
                 break;
             case 2:
-          
                 pilihanUbahLaptop = showmenu(2, ubahLaptop, ubahLaptopHeader);
                 if (pilihanUbahLaptop == 1){
                     system("cls");
@@ -396,8 +560,12 @@ void menuAdmin() {
                     break;
                 }
                 int id;
-                // bawah ini ganti searching
-                cout << "Masukkan ID Laptop yang ingin diubah: ";
+                cout << "\nCari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                searchLaptopsByModel(model);
+                
+                cout << "\nMasukkan ID Laptop yang ingin diubah: ";
                 cin >> id;cin.ignore();
                 updateLaptop(id);
                 cout << "Perubahan berhasil disimpan.\n"; ;
@@ -405,7 +573,6 @@ void menuAdmin() {
                 system("cls");
                 break;
             case 3:
-                
                 pilihanHapusLaptop = showmenu(2, hapusLaptop, hapusLaptopHeader);
                 if (pilihanHapusLaptop == 1){
                     system("cls");
@@ -416,10 +583,14 @@ void menuAdmin() {
                     break;
                 }
                 // bawah ini ganti searching
+                cout << "\nCari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                searchLaptopsByModel(model);
                 cout << "Masukkan ID Laptop yang ingin dihapus: ";
                 cin >> id;cin.ignore();
                 deleteLaptop(id);
-                system("cls");  
+                system("cls");
                 break;
             case 4:
                 displayPesanan();
@@ -448,13 +619,73 @@ void menuAdmin() {
         }
     } while (pilihan != 6);
 }
+void menuPelanggan() {
+    int pilihan, laptop_id, jumlah;
+    string nama, alamat, telepon,model;
+
+    int pilihanCariLaptop;
+
+    do {
+        string menuPelangganHeader = "Menu Pelanggan";
+        string menuPelanggan[] = {"Lihat Laptop", "Beli Laptop", "Keluar"};
+        string cariLaptopHeader = "Cari Laptop?";
+        string cariLaptop[] = {"Ya", "Kembali"};
+        string metodeSort[] = {"Brand", "Harga", "Kembali"};
+        pilihan = showmenu(3, menuPelanggan, menuPelangganHeader);
+        switch (pilihan) {
+            case 0:
+                pilihan = showmenu(3, metodeSort, "Urutkan Berdasarkan");
+                if (pilihan == 0) {
+                    mergeSortByBrand(&laptopHead);
+                } else if (pilihan == 1) {
+                    shellSortByPrice(&laptopHead);
+                } else {
+                    break;
+                }
+                displayLaptops();
+                cout << "\n\nKlik untuk next\n";
+                _getch();
+                system("cls");
+                if (laptopHead == nullptr) {
+                    break;
+                }
+                break;
+            case 1:
+                displayLaptops();
+                if (laptopHead == nullptr) {
+                    break;
+                }
+                cout << "\nCari Laptop berdasarkan model: ";
+                cin.clear();
+                getline(cin, model);
+                if (model.empty()) {
+                    system("cls");
+                    break;
+                }
+                searchLaptopsByModel(model);
+                inputPesanan();
+                cout << "\n\nKlik untuk next\n";
+                _getch();
+                system("cls");
+                break;
+            case 2:
+                cout << "Terima kasih telah mengunjungi toko kami!\n";
+                break;
+        }
+    } while (pilihan != 2);
+}
 // ============================================MAIN================================================ //
 int main() {
     int pilihan;
 
     addLaptop("Dell", "Inspiron 14", "Intel i5, 8GB RAM, 256GB SSD", 10, 7000000);
     addLaptop("HP", "Pavilion 15", "Intel i7, 16GB RAM, 512GB SSD", 5, 12000000);
-
+    addLaptop("Asus", "VivoBook 14", "AMD Ryzen 5, 8GB RAM, 512GB SSD", 7, 8000000);
+    addLaptop("Lenovo", "IdeaPad 5", "AMD Ryzen 7, 16GB RAM, 1TB SSD", 3, 15000000);
+    addLaptop("Acer", "Aspire 5", "Intel i3, 4GB RAM, 128GB SSD", 8, 5000000);
+    addLaptop("Apple", "MacBook Air", "Apple M1, 8GB RAM, 256GB SSD", 2, 15000000);
+    addLaptop("MSI", "GF63 Thin", "Intel i5, 8GB RAM, 512GB SSD", 6, 9000000);
+    addLaptop("Razer", "Blade 15", "Intel i7, 16GB RAM, 1TB SSD", 4, 20000000);
     do {
     system("cls");
         string menuMainHeader = "Selamat datang di Toko Laptop!";
