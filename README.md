@@ -20,10 +20,5 @@
 
 
 </table>
-  <p>
-    Mohon maaf bang mba, karena ketua nya tidur lebih awal jadi dia ga ngumpulin video demonya di classroom<br>
-    <a href = "https://drive.google.com/file/d/1bXlrrn0ejp67KFp6Ntt2a3QjgWe9NriK/view?usp=sharing">Video Demo Ada Disini</a>
-    🙏 
 
-  </p>
   ![screenshot](https://imgur.com/a/jKI4vtu)
