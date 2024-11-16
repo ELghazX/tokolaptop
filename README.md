@@ -21,4 +21,3 @@
 
 </table>
 
-  ![screenshot](https://imgur.com/a/jKI4vtu)
