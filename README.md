@@ -5,14 +5,14 @@
 <table>
   <th>NAMA</th>
   <th>NIM</th>
-  <tr>
+<!--   <tr>
     <td><a href = "https://github.com/jeeissuperrr">Muhammad Jahron</a></td>
     <td>2309106037</td>
   </tr>
   <tr>
     <td><a href = "https://github.com/galaxionzero">Muhammad Guntur Adyatma</a></td>
     <td>2309106023</td>
-  </tr>
+  </tr> -->
   <tr>
     <td><a href = "https://github.com/ELghazX">Muhammad Ghazali</a></td>
     <td>2309106041</td>
